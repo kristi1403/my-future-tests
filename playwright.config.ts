@@ -76,4 +76,7 @@ export default defineConfig({
   //   url: 'http://localhost:3000',
   //   reuseExistingServer: !process.env.CI,
   // },
+  trace: 'on-first-retry',
+  video: 'retain-on-failure',
+  screenshot: 'only-on-failure'
 });
