@@ -1,27 +1,51 @@
-name: Playwright Tests
+ame: Playwright Tests
+
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+        
     - name: Install dependencies
       run: npm ci
+      
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+      
     - name: Run Playwright tests
       run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
+      
+    - name: Send Telegram notification on SUCCESS
+      if: success()
+      uses: appleboy/telegram-action@master
       with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ✅ Ура! Автотесты прошли успешно!
+          Проект: ${{ github.repository }}
+          Ветка: ${{ github.ref_name }}
+          Автор: ${{ github.actor }}
+          
+    - name: Send Telegram notification on FAILURE
+      if: failure()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ❌ Внимание! Тесты упали!
+          Проект: ${{ github.repository }}
+          Ветка: ${{ github.ref_name }}
+          Посмотреть отчет: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
