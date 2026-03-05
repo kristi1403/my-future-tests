@@ -27,16 +27,19 @@ jobs:
       run: npx playwright test
       
     - name: Send Telegram notification on SUCCESS
-      if: success()
+      if: always()  # Запускается всегда, не только при успехе
       uses: appleboy/telegram-action@master
+      env:
+        TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: |
-          ✅ Ура! Автотесты прошли успешно!
-          Проект: ${{ github.repository }}
-          Ветка: ${{ github.ref_name }}
-          Автор: ${{ github.actor }}
+          🧪 Тесты Playwright!
+          Status: ${{ job.status }}
+          Repo: ${{ github.repository }}
+          Commit: ${{ github.sha }}
           
     - name: Send Telegram notification on FAILURE
       if: failure()
