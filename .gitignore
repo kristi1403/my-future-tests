@@ -1,4 +1,15 @@
 
+# Secrets - never commit tokens/keys
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+.npmrc
+
 # Playwright
 node_modules/
 /test-results/

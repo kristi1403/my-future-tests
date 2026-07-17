@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Blocks commits that contain likely secrets (tokens, private keys, API keys).
+# Enabled via: git config core.hooksPath .githooks
+
+pattern='(-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|gho_[A-Za-z0-9]{36}|xox[baprs]-[A-Za-z0-9-]{10,}|AIza[0-9A-Za-z_-]{35}|[0-9]{8,10}:[A-Za-z0-9_-]{35}|sk-[A-Za-z0-9]{20,})'
+
+matches=$(git diff --cached -U0 | grep -E '^\+' | grep -Ev '^\+\+\+' | grep -E "$pattern")
+
+if [ -n "$matches" ]; then
+  echo "pre-commit: possible secret detected in staged changes:"
+  echo "$matches"
+  echo
+  echo "If this is a false positive, use 'git commit --no-verify' to bypass."
+  exit 1
+fi
